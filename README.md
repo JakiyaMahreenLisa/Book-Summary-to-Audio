@@ -113,7 +113,7 @@ The summary script expects this file:
 extracted/85jkr_harrypotter_1_cleaned.txt
 ```
 
-Make sure the file exists in the correct folder.
+This file is created by the upload step in [Section 9](#9-start-the-fastapi-server-and-upload-a-book). Make sure it exists in the correct folder before running the summary script.
 
 The current test script processes only the first 5,000 characters of the book.
 
@@ -123,6 +123,7 @@ Expected project structure:
 fastapi-book-extractor/
 ├── venv/
 ├── .env
+├── main.py
 ├── test_gemini.py
 ├── test_tts.py
 ├── extracted/
@@ -166,7 +167,7 @@ Check the executable location:
 where.exe ffmpeg
 ```
 
-**If all commands work:** FFmpeg is installed and accessible through PATH. Skip to [Section 9](#9-generate-the-book-summary).
+**If all commands work:** FFmpeg is installed and accessible through PATH. Skip to [Section 9](#9-start-the-fastapi-server-and-upload-a-book).
 
 **If `ffmpeg` is not recognized:** follow [Section 8](#8-configure-ffmpeg-path-in-windows-and-vs-code).
 
@@ -306,29 +307,91 @@ ffmpeg -version
 
 This temporary change applies only to the current terminal session.
 
-## 9. Generate the Book Summary
+## 9. Start the FastAPI Server and Upload a Book
 
-Run this command from the project root:
+Before generating a summary or audio, upload a book through the FastAPI Swagger UI.
+
+### Step 1: Start the FastAPI Server
+
+Open the VS Code terminal and navigate to the project root:
+
+```powershell
+cd E:\fastapi-book-extractor
+```
+
+Activate the virtual environment:
+
+```powershell
+.\venv\Scripts\Activate.ps1
+```
+
+Start the FastAPI development server:
+
+```powershell
+python -m uvicorn main:app --reload
+```
+
+> **Note:** This command assumes your FastAPI application is defined in `main.py` as `app = FastAPI()`. If your application uses a different filename or variable name, update the command accordingly.
+
+Keep this terminal running while using the API.
+
+### Step 2: Open Swagger UI
+
+Open your browser and visit:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+This page provides an interactive interface for testing the FastAPI endpoints.
+
+### Step 3: Upload the Book
+
+1. Find the book upload endpoint, usually named `POST /upload` or something similar.
+2. Click the endpoint to expand it.
+3. Click **Try it out**.
+4. Click **Choose File** and select your PDF or EPUB book.
+5. Click **Execute** to submit the upload request.
+6. Check the response to confirm whether the upload succeeded.
+
+The exact endpoint name and accepted file formats depend on the implementation of this project.
+
+### Step 4: Verify the Extracted Text
+
+After a successful upload, check the API response for the uploaded filename, processing status, or output file location.
+
+If the API extracts and cleans the text automatically, verify that the cleaned text file has been created in the expected folder.
+
+For example:
+
+```text
+extracted/
+└── 85jkr_harrypotter_1_cleaned.txt
+```
+
+The filename above is only an example. Use the actual output filename created by your upload endpoint.
+
+### Step 5: Generate the Summary
+
+After confirming that the cleaned text file exists at the path expected by the summary script, open a **second** VS Code terminal and activate the virtual environment:
+
+```powershell
+.\venv\Scripts\Activate.ps1
+```
+
+Run:
 
 ```powershell
 python test_gemini.py
 ```
 
-The script will:
-
-1. Read the cleaned book text.
-2. Send the first 5,000 characters to Gemini.
-3. Generate a summary.
-4. Print the summary in the terminal.
-5. Save the summary to:
+The script will read the cleaned book text, send the first 5,000 characters to Gemini, print the summary in the terminal, and save it to:
 
 ```text
 extracted/summary.txt
 ```
 
-Run this script before generating audio.
-
-## 10. Generate Audio and MP3
+### Step 6: Generate the Audio
 
 After the summary has been saved, run:
 
@@ -336,15 +399,9 @@ After the summary has been saved, run:
 python test_tts.py
 ```
 
-The script will:
+The script will read `extracted/summary.txt`, send up to 1,500 characters to the configured Gemini TTS model, save the WAV file, and use FFmpeg to convert it into MP3.
 
-1. Read `extracted/summary.txt`.
-2. Send up to 1,500 characters to the configured Gemini TTS model.
-3. Generate speech audio.
-4. Save the WAV file.
-5. Use FFmpeg to convert WAV into MP3.
-
-Expected output:
+The output files are:
 
 ```text
 output/
@@ -364,23 +421,33 @@ Check MP3 metadata and duration:
 ffprobe -hide_banner .\output\summary.mp3
 ```
 
-## 11. Quick Start — Commands in Order
+## 10. Quick Start — Commands in Order
 
-Once the initial setup is complete, run these commands whenever you want to generate a summary and audio.
+Once the initial setup is complete, follow these steps whenever you want to process a book.
 
-**Step 1: Activate the virtual environment**
+**Step 1: Activate the virtual environment** (terminal 1)
 
 ```powershell
 .\venv\Scripts\Activate.ps1
 ```
 
-**Step 2: Generate the summary**
+**Step 2: Start the FastAPI server** (keep it running)
+
+```powershell
+python -m uvicorn main:app --reload
+```
+
+**Step 3: Upload the book**
+
+Open `http://127.0.0.1:8000/docs`, use the upload endpoint, and confirm the cleaned text file is created in `extracted/`.
+
+**Step 4: Generate the summary** (terminal 2, after activating the virtual environment)
 
 ```powershell
 python test_gemini.py
 ```
 
-**Step 3: Generate the audio**
+**Step 5: Generate the audio**
 
 ```powershell
 python test_tts.py
@@ -388,13 +455,14 @@ python test_tts.py
 
 You must run the summary script before the TTS script whenever you need fresh audio from a new book section.
 
-## 12. Troubleshooting
+## 11. Troubleshooting
 
 | Problem                              | Solution                                                    |
 | ------------------------------------ | ----------------------------------------------------------- |
 | `ffmpeg is not recognized`           | Follow Section 8 and restart VS Code if necessary.          |
 | `Summary not found`                  | Run `python test_gemini.py` first.                          |
-| Cleaned book file not found          | Verify the input file name and location.                    |
+| Cleaned book file not found          | Upload the book first (Section 9) and verify the file name. |
+| `Could not import module "main"`     | Check the filename and `app` variable in the uvicorn command. |
 | Gemini API key error                 | Check `.env` and the API key.                               |
 | Model not found or unavailable       | Check the model ID and confirm API access for your account. |
 | WAV-to-MP3 conversion fails          | Check `ffmpeg -version` and review the FFmpeg error output. |
@@ -404,7 +472,7 @@ A Gemini SDK warning about automatic function calling (AFC) does not necessarily
 
 ## Important Notes
 
-- This repository currently contains test scripts for summarization and TTS, not a complete production FastAPI service.
+- The FastAPI server handles book upload and text extraction. Summary and TTS generation run as separate test scripts (`test_gemini.py`, `test_tts.py`), not as a production service.
 - The model IDs used by the scripts must be supported by your installed Google Gen AI SDK and available to your API account.
 - FFmpeg is used for audio conversion; the Gemini API generates the summary and speech.
 - Use only books and documents you have permission to process.
