@@ -63,9 +63,9 @@
                 <a href="#hero-section" class="text-sm font-semibold text-brand-500 border-b-2 border-brand-500 pb-1">Explore Engine</a>
                 <a href="#popular-library" class="text-sm font-medium text-slate-600 hover:text-brand-500 transition-colors">Popular Summaries</a>
                 <a href="#how-it-works" class="text-sm font-medium text-slate-600 hover:text-brand-500 transition-colors">How It Works</a>
-                <a href="#my-library" onclick="toggleLibraryDrawer()" class="text-sm font-medium text-slate-600 hover:text-brand-500 transition-colors flex items-center gap-1.5">
-                    <i class="fa-solid fa-bookmark text-xs text-brand-gold"></i> Saved Library
-                    <span id="saved-count-badge" class="bg-brand-100 text-brand-700 text-xs px-2 py-0.5 rounded-full font-bold">2</span>
+                <a href="#my-library" onclick="openLibrary(event)" class="text-sm font-medium text-slate-600 hover:text-brand-500 transition-colors flex items-center gap-1.5">
+                   <i class="fa-solid fa-bookmark text-xs text-brand-gold"></i> Saved Library
+                   <span id="saved-count-badge" class="hidden bg-brand-100 text-brand-700 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
                 </a>
             </nav>
 
@@ -74,10 +74,14 @@
                 <button onclick="openSearchModal()" class="p-2 text-slate-500 hover:text-brand-500 hover:bg-slate-50 rounded-lg transition-all" title="Search Books">
                     <i class="fa-solid fa-magnifying-glass text-lg"></i>
                 </button>
-                <button class="hidden sm:inline-flex px-4 py-2 text-sm font-semibold text-slate-700 hover:text-brand-500 border border-slate-200 rounded-xl hover:border-brand-200 transition-all">Log in</button>
-                <button class="px-5 py-2.5 text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 rounded-xl shadow-md shadow-brand-500/20 hover:shadow-lg hover:shadow-brand-500/30 transition-all active:scale-95">
+                <button id="login-btn" onclick="openAuthModal('login')" class="hidden sm:inline-flex px-4 py-2 text-sm font-semibold text-slate-700 hover:text-brand-500 border border-slate-200 rounded-xl hover:border-brand-200 transition-all">Log in</button>
+                <button id="signup-btn" onclick="openAuthModal('signup')" class="px-5 py-2.5 text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 rounded-xl shadow-md shadow-brand-500/20 hover:shadow-lg hover:shadow-brand-500/30 transition-all active:scale-95">
                     Sign up free
                 </button>
+                <div id="user-menu" class="hidden items-center gap-3">
+                    <span id="user-name" class="text-sm font-semibold text-slate-700"></span>
+                    <button onclick="logout()" class="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-brand-500 border border-slate-200 rounded-xl hover:border-brand-200 transition-all">Log out</button>
+                </div>
             </div>
         </div>
     </header>
@@ -291,29 +295,31 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="books-grid">
                 
                 <!-- Card 1: Atomic Habits -->
-                <div class="book-card bg-white rounded-2xl p-4 border border-slate-100 shadow-lg shadow-slate-200/40 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between" data-category="self">
-                    <div>
-                        <div class="relative overflow-hidden rounded-xl mb-3 group">
-                            <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&auto=format&fit=crop&q=80" alt="Atomic Habits" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
-                            <span class="absolute top-2 right-2 bg-slate-900/80 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1">
-                                <i class="fa-solid fa-headphones text-brand-gold"></i> 12 min
-                            </span>
-                        </div>
-                        <span class="text-[10px] font-extrabold uppercase text-brand-500 tracking-wider">Self Improvement</span>
-                        <h3 class="text-base font-bold text-slate-900 line-clamp-1 mt-0.5">Atomic Habits</h3>
-                        <p class="text-xs text-slate-500">James Clear</p>
-                    </div>
+<div class="book-card bg-white rounded-2xl p-4 border border-slate-100 shadow-lg shadow-slate-200/40 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between" data-category="self">
+    <div>
+        <div class="relative overflow-hidden rounded-xl mb-3 group">
+            <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&auto=format&fit=crop&q=80" alt="Atomic Habits" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
+            <span class="absolute top-2 right-2 bg-slate-900/80 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1">
+                <i class="fa-solid fa-headphones text-brand-gold"></i> 12 min
+            </span>
+        </div>
+        <span class="text-[10px] font-extrabold uppercase text-brand-500 tracking-wider">Self Improvement</span>
+        <h3 class="text-base font-bold text-slate-900 line-clamp-1 mt-0.5">Atomic Habits</h3>
+        <p class="text-xs text-slate-500">James Clear</p>
+    </div>
 
-                    <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
-                        <button onclick="loadBookToPlayer('Atomic Habits', 'James Clear', 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=300&auto=format&fit=crop&q=80', '12 min')" class="flex-1 py-2 px-3 rounded-xl bg-brand-50 hover:bg-brand-500 text-brand-700 hover:text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5">
-                            <i class="fa-solid fa-play text-[10px]"></i> Listen
-                        </button>
-                        <button onclick="openPdfModal('Atomic Habits')" class="p-2 rounded-xl border border-slate-200 text-slate-600 hover:text-brand-500 hover:border-brand-300 text-xs font-medium transition-all" title="Read Summary PDF">
-                            <i class="fa-solid fa-file-lines"></i>
-                        </button>
-                    </div>
-                </div>
-
+    <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+        <button onclick="loadBookToPlayer('Atomic Habits', 'James Clear', 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=300&auto=format&fit=crop&q=80', '12 min')" class="flex-1 py-2 px-3 rounded-xl bg-brand-50 hover:bg-brand-500 text-brand-700 hover:text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-play text-[10px]"></i> Listen
+        </button>
+        <button onclick="toggleSaveFromCard(this)" class="save-btn p-2 rounded-xl border border-slate-200 hover:border-brand-300 transition-all" title="Save to library">
+            <i class="fa-regular fa-bookmark text-slate-600"></i>
+        </button>
+        <button onclick="openPdfModal('Atomic Habits')" class="p-2 rounded-xl border border-slate-200 text-slate-600 hover:text-brand-500 hover:border-brand-300 text-xs font-medium transition-all" title="Read Summary PDF">
+            <i class="fa-solid fa-file-lines"></i>
+        </button>
+    </div>
+</div>
                 <!-- Card 2: Deep Work -->
                 <div class="book-card bg-white rounded-2xl p-4 border border-slate-100 shadow-lg shadow-slate-200/40 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between" data-category="tech">
                     <div>
@@ -505,6 +511,41 @@
             </div>
         </div>
     </div>
+    
+    <!-- Auth Modal -->
+<div id="auth-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl p-6 border border-slate-200 relative">
+        <button onclick="closeAuthModal()" class="absolute right-4 top-4 text-slate-400 hover:text-slate-600">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+
+        <h3 id="auth-title" class="text-xl font-bold text-slate-900 mb-5">Welcome back</h3>
+
+        <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-4">
+            <div id="auth-name-wrap" class="hidden">
+                <label class="block text-xs font-bold text-slate-700 mb-1">Full name</label>
+                <input id="auth-name" type="text" class="w-full px-3 py-2.5 text-sm bg-slate-50 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Email</label>
+                <input id="auth-email" type="email" class="w-full px-3 py-2.5 text-sm bg-slate-50 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Password</label>
+                <input id="auth-password" type="password" class="w-full px-3 py-2.5 text-sm bg-slate-50 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500">
+            </div>
+
+            <p id="auth-error" class="hidden text-xs font-medium text-red-600"></p>
+
+            <button id="auth-submit" type="submit" class="w-full py-2.5 bg-brand-500 hover:bg-brand-600 text-white text-sm font-bold rounded-xl transition-colors">Log in</button>
+        </form>
+
+        <p class="text-xs text-slate-500 text-center mt-4">
+            <span id="auth-switch-text">Don't have an account?</span>
+            <button id="auth-switch-btn" type="button" onclick="setAuthMode(authMode === 'login' ? 'signup' : 'login')" class="font-bold text-brand-500 hover:underline">Sign up</button>
+        </p>
+    </div>
+</div>
 
     <!-- Search Overlay Modal -->
     <div id="search-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-start justify-center pt-20 hidden">
@@ -522,17 +563,16 @@
         </div>
     </div>
 
-    <!-- Footer -->
+        <!-- Footer -->
     <footer class="bg-white border-t border-slate-100 py-10 mt-20">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
             <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-lg bg-brand-50 flex items-center justify-center p-1.5 border border-brand-100">
-                    <svg viewBox="0 0 100 100" class="w-full h-full text-brand-500 fill-current">
-                        <path d="M 15,22 Q 38,16 50,25 L 50,82 Q 38,73 15,79 Z" fill="#0B57D0"/>
-                        <path d="M 50,25 Q 62,16 85,22 L 85,79 Q 62,73 50,82 Z" fill="#0B57D0" opacity="0.15"/>
-                        <rect x="64" y="30" width="4.5" height="42" rx="2.25" fill="#0B57D0" />
-                        <rect x="56" y="38" width="4" height="26" rx="2" fill="#C5A15B" />
-                    </svg>
+                <div class="w-10 h-10 rounded-lg overflow-hidden border-2 border-brand-500">
+                    <img
+                        src="images/my_logo.png"
+                        alt="Sapio AI logo"
+                        class="w-full h-full object-cover"
+                    />
                 </div>
                 <span class="font-bold text-slate-900 text-sm">Sapio AI © 2026</span>
                 <span class="text-xs text-slate-400">• Read Less, Learn More, Listen Anywhere.</span>

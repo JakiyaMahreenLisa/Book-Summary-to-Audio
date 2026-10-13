@@ -224,3 +224,71 @@
         function toggleLibraryDrawer() {
             alert('Your Saved Library contains 2 items: Atomic Habits and Deep Work.');
         }
+// ---------- Auth (frontend demo, no real backend yet) ----------
+let authMode = 'login';
+
+function openAuthModal(mode = 'login') {
+    setAuthMode(mode);
+    document.getElementById('auth-modal').classList.remove('hidden');
+    document.getElementById('auth-email').focus();
+}
+
+function closeAuthModal() {
+    document.getElementById('auth-modal').classList.add('hidden');
+    document.getElementById('auth-form').reset();
+    showAuthError('');
+}
+
+function setAuthMode(mode) {
+    authMode = mode;
+    const isSignup = mode === 'signup';
+    document.getElementById('auth-title').innerText = isSignup ? 'Create your free account' : 'Welcome back';
+    document.getElementById('auth-name-wrap').classList.toggle('hidden', !isSignup);
+    document.getElementById('auth-submit').innerText = isSignup ? 'Sign up' : 'Log in';
+    document.getElementById('auth-switch-text').innerText = isSignup ? 'Already have an account?' : "Don't have an account?";
+    document.getElementById('auth-switch-btn').innerText = isSignup ? 'Log in' : 'Sign up';
+    showAuthError('');
+}
+
+function showAuthError(msg) {
+    const el = document.getElementById('auth-error');
+    el.innerText = msg;
+    el.classList.toggle('hidden', !msg);
+}
+
+function handleAuthSubmit(e) {
+    e.preventDefault();
+    const isSignup = authMode === 'signup';
+    const name = document.getElementById('auth-name').value.trim();
+    const email = document.getElementById('auth-email').value.trim();
+    const password = document.getElementById('auth-password').value;
+
+    if (isSignup && !name) return showAuthError('Please enter your name.');
+    if (!email) return showAuthError('Please enter your email.');
+    if (password.length < 6) return showAuthError('Password must be at least 6 characters.');
+
+    // TODO: replace this with a real backend / auth service call
+    const user = { name: isSignup ? name : email.split('@')[0], email };
+    localStorage.setItem('sapio_user', JSON.stringify(user));
+
+    closeAuthModal();
+    renderAuthState();
+}
+
+function logout() {
+    localStorage.removeItem('sapio_user');
+    renderAuthState();
+}
+
+function renderAuthState() {
+    const user = JSON.parse(localStorage.getItem('sapio_user') || 'null');
+    const menu = document.getElementById('user-menu');
+    document.getElementById('login-btn').classList.toggle('hidden', !!user);
+    document.getElementById('signup-btn').classList.toggle('hidden', !!user);
+    menu.classList.toggle('hidden', !user);
+    menu.classList.toggle('flex', !!user);
+    if (user) document.getElementById('user-name').innerText = `Hi, ${user.name}`;
+}
+
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeAuthModal(); });
+document.addEventListener('DOMContentLoaded', renderAuthState);
