@@ -1,0 +1,1 @@
+Copy your my_logo.png into this folder (public/images/my_logo.png).
